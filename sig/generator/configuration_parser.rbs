@@ -1,0 +1,3 @@
+module ConfigurationParser
+  def self.parse: (String configuration_file) -> Configuration
+end
