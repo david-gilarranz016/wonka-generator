@@ -1,0 +1,5 @@
+class Configuration
+  @fragments: Hash[String, Fragment]
+
+  def initialize: (Hash[String, Fragment] fragments) -> void
+end
