@@ -1,0 +1,7 @@
+class Fragment
+  @key: String
+  @sources: Array[String]
+  @arguments: Array[String]
+
+  def initialize: (String key, Array[String] sources, Array[String] arguments) -> void
+end
