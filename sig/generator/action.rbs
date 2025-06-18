@@ -1,0 +1,3 @@
+interface _Action
+  def transform: (Product product) -> void
+end
