@@ -8,7 +8,7 @@ module ConfigurationParser
     yaml['fragments'].each do |fragment|
       key = fragment['key']
       sources = fragment['sources']
-      arguments = fragment.key? 'arguments' ? fragment['arguments'] : []
+      arguments = fragment.key?('arguments') ? fragment['arguments'] : []
       fragments[key] = Fragment.new(key, sources, arguments)
     end
 
