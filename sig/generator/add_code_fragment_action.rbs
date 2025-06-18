@@ -1,0 +1,8 @@
+class AddCodeFragmentAction
+  @code_factory: CodeFactory
+  @fragment: String
+  @arguments: Hash[String, String] | nil
+
+  def initialize: (CodeFactory code_factory, String fragment, Hash[String, String]? arguments) -> void
+  def transform: (Product product) -> void
+end

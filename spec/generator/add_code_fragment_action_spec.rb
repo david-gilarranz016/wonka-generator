@@ -30,6 +30,18 @@ describe AddCodeFragmentAction do
     product.code = 'Different initial code'
     run_does_not_delete_previous_code_scenario(product)
   end
+
+  it 'adds a fragment with arguments' do
+    feature = 'ip-whitelist'
+    arguments = { 'WHITELIST' => '"127.0.0.1", "::1"' }
+    run_fragment_with_arguments_scenario(feature, arguments)
+  end
+
+  it 'adds a different fragment with arguments' do
+    feature = 'setup-encryption'
+    arguments = { 'KEY' => 'sample_key' }
+    run_fragment_with_arguments_scenario(feature, arguments)
+  end
 end
 
 ################################################################################
@@ -41,7 +53,7 @@ end
 def run_adds_simple_fragment_scenario(feature, fragment)
   # Create a mock CodeFactory
   code_factory = instance_double(CodeFactory)
-  expect(code_factory).to receive(:build_fragment).with(feature).and_return(fragment)
+  expect(code_factory).to receive(:build_fragment).with(feature, nil).and_return(fragment)
 
   # Create and run the action
   product = Product.new
@@ -68,3 +80,13 @@ def run_does_not_delete_previous_code_scenario(product)
   expect(product.code).to include(code)
 end
 
+def run_fragment_with_arguments_scenario(feature, arguments)
+  # Create a mock CodeFactory and expect it to receive the arguments for the fragment
+  code_factory = instance_double(CodeFactory)
+  expect(code_factory).to receive(:build_fragment).with(feature, arguments).and_return('')
+
+  # Create and run the action
+  product = Product.new
+  action = AddCodeFragmentAction.new(code_factory, feature, arguments)
+  action.transform(product)
+end
