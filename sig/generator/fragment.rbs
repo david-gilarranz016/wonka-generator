@@ -1,7 +1,7 @@
 class Fragment
-  @key: String
-  @sources: Array[String]
-  @arguments: Array[String]
+  attr_reader key: String
+  attr_reader sources: Array[String]
+  attr_reader arguments: Array[String]
 
   def initialize: (String key, Array[String] sources, Array[String] arguments) -> void
 end

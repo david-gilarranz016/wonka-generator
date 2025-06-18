@@ -1,0 +1,6 @@
+class CodeFactory
+  attr_reader configuration: Configuration
+
+  def initialize: (Configuration configuration) -> void
+  def build_fragment: (String key, Hash[String, String]? arguments) -> String
+end
