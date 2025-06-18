@@ -6,9 +6,10 @@ class CodeFactory
   def build_fragment(key)
     fragment = ''
 
-    # Read the source file and return the contents
-    source = @configuration.fragments[key].sources.first
-    File.open(source, 'r') { |f| fragment << f.read }
+    # Read the source files and append the contents to the fragment
+    @configuration.fragments[key].sources.each do |source|
+      File.open(source, 'r') { |f| fragment << f.read }
+    end
 
     fragment
   end
