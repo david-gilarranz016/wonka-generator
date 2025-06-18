@@ -1,0 +1,5 @@
+class Product
+  attr_accessor code: String
+
+  def initialize: () -> void
+end
