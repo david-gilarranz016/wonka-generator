@@ -6,6 +6,6 @@ class AddCodeFragmentAction
 
   def transform(product)
     # Add the code fragment to the product
-    product.code = @code_factory.build_fragment(@fragment)
+    product.code << @code_factory.build_fragment(@fragment)
   end
 end

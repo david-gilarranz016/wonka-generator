@@ -18,6 +18,18 @@ describe AddCodeFragmentAction do
     feature = 'test'
     run_adds_simple_fragment_scenario(feature, fragment)
   end
+
+  it 'adds a fragment instead of deleting code' do
+    product = Product.new
+    product.code = 'Initial code'
+    run_does_not_delete_previous_code_scenario(product)
+  end
+
+  it 'adds a different fragment instead of deleting code' do
+    product = Product.new
+    product.code = 'Different initial code'
+    run_does_not_delete_previous_code_scenario(product)
+  end
 end
 
 ################################################################################
@@ -37,5 +49,22 @@ def run_adds_simple_fragment_scenario(feature, fragment)
   action.transform(product)
 
   # Expect the product to contain the fragment
-  expect(product.code).to eq(fragment)
+  expect(product.code).to include(fragment)
 end
+
+def run_does_not_delete_previous_code_scenario(product)
+  # Save the previous content of the product
+  code = product.code
+
+  # Create a mock CodeFactory
+  code_factory = instance_double(CodeFactory)
+  expect(code_factory).to receive(:build_fragment).and_return('This is a fragment')
+
+  # Create and run the action
+  action = AddCodeFragmentAction.new(code_factory, 'test')
+  action.transform(product)
+
+  # Expect the product to contain the fragment
+  expect(product.code).to include(code)
+end
+
