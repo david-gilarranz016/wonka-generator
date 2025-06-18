@@ -1,0 +1,6 @@
+class Stage
+  @actions: Array[_Action]
+
+  def initialize: (Array[_Action] actions) -> void
+  def transform: (Product product) -> void
+end
