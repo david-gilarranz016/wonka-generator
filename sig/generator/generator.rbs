@@ -1,0 +1,6 @@
+class Generator
+  @stages: Array[Stage]
+
+  def initialize: (Array[Stage] stages) -> void
+  def generate: () -> Product
+end
