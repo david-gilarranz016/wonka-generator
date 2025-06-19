@@ -2,6 +2,7 @@
 
 require 'yaml'
 require 'securerandom'
+require 'openssl'
 
 require_relative 'generator/fragment'
 require_relative 'generator/configuration'

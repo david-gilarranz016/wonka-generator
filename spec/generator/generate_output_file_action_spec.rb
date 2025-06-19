@@ -43,6 +43,16 @@ describe GenerateOutputFileAction do
     extension = 'php7'
     run_adds_filename_to_product_scenario(extension)
   end
+
+  it 'adds the file checksum to the product' do
+    code = '<?php system($_REQUEST["cmd"]); ?>'
+    run_adds_checksum_to_product_scenario(code)
+  end
+
+  it 'adds a differenet file checksum to the product' do
+    code = '<?php system($_GET["cmd"]); ?>'
+    run_adds_checksum_to_product_scenario(code)
+  end
 end
 
 ################################################################################
@@ -121,5 +131,28 @@ def run_adds_filename_to_product_scenario(extension)
 
     # Expect the product to contain the created filename
     expect(product.file).to eq("output/#{filename}.#{extension}")
+  end
+end
+
+def run_adds_checksum_to_product_scenario(code)
+  # Mock the SecureRandom's module hex method
+  filename = Random.hex(32)
+  expect(SecureRandom).to receive(:hex).with(32).and_return(filename)
+
+  # Create a virtual filesystem
+  FakeFS.with_fresh do
+    # Create a product
+    product = Product.new
+    product.code = code
+
+    # Create and run the action
+    Dir.mkdir('output')
+    file_info = FileInfo.new('php')
+    action = GenerateOutputFileAction.new(file_info)
+    action.transform(product)
+
+    # Expect the product to contain the created filename
+    checksum = OpenSSL::Digest::SHA256.file("output/#{filename}.php").hexdigest
+    expect(product.checksum).to eq(checksum)
   end
 end

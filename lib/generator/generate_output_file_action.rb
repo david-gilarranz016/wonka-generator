@@ -15,7 +15,8 @@ class GenerateOutputFileAction
     # Append the code to the file
     File.open(path, 'a') { |f| f.write(product.code) }
 
-    # Update the product with the output path for the filename
+    # Update the product with the output path for the filename and the checksum
     product.file = path
+    product.checksum = OpenSSL::Digest::SHA256.file(path).hexdigest
   end
 end
