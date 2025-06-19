@@ -38,4 +38,21 @@ describe Output do
       '454e44ae426082'
     )
   end
+
+  it 'stores the correct extension for a JPG file' do
+    file_info = Output::JPG
+    expect(file_info.extension).to eq('jpg')
+  end
+
+  it 'stores the correct preamble for a JPG file' do
+    file_info = Output::JPG
+    expect(file_info.preamble).to eq(
+      'ffd8ffe000104a46494600010100000100010000ffdb0043000302020202'\
+      '02030202020303030304060404040404080606050609080a0a090809090a'\
+      '0c0f0c0a0b0e0b09090d110d0e0f101011100a0c12131210130f101010ff'\
+      'c0000b080001000101011100ffc400140001000000000000000000000000'\
+      '00000009ffc40014100100000000000000000000000000000000ffda0008'\
+      '010100003f0054dfffd9'
+    )
+  end
 end
