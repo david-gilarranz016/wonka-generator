@@ -33,6 +33,16 @@ describe GenerateOutputFileAction do
     extension = 'png'
     run_creates_file_with_preamble_scenario(code, preamble, extension)
   end
+
+  it 'adds the created filename to the product' do
+    extension = 'php'
+    run_adds_filename_to_product_scenario(extension)
+  end
+
+  it 'adds a differenet created filename to the product' do
+    extension = 'php7'
+    run_adds_filename_to_product_scenario(extension)
+  end
 end
 
 ################################################################################
@@ -53,12 +63,13 @@ def run_creates_file_scenario(code, extension)
     product.code = code
 
     # Create and run the action
+    Dir.mkdir('output')
     file_info = FileInfo.new(extension)
     action = GenerateOutputFileAction.new(file_info)
     action.transform(product)
 
     # Expect the file to have been created
-    File.open("#{filename}.#{extension}", 'r') do |f|
+    File.open("output/#{filename}.#{extension}", 'r') do |f|
       expect(f.read).to eq(code)
     end
   end
@@ -76,6 +87,7 @@ def run_creates_file_with_preamble_scenario(code, preamble, extension)
     product.code = code
 
     # Create and run the action
+    Dir.mkdir('output')
     file_info = FileInfo.new(extension, preamble)
     action = GenerateOutputFileAction.new(file_info)
     action.transform(product)
@@ -85,8 +97,29 @@ def run_creates_file_with_preamble_scenario(code, preamble, extension)
     expected_content << code
 
     # Open the file and compare the actual with the expected content
-    File.open("#{filename}.#{extension}", 'r+b') do |f|
+    File.open("output/#{filename}.#{extension}", 'r+b') do |f|
       expect(f.read).to eq(expected_content)
     end
+  end
+end
+
+def run_adds_filename_to_product_scenario(extension)
+  # Mock the SecureRandom's module hex method
+  filename = Random.hex(32)
+  expect(SecureRandom).to receive(:hex).with(32).and_return(filename)
+
+  # Create a virtual filesystem
+  FakeFS.with_fresh do
+    # Create a product
+    product = Product.new
+
+    # Create and run the action
+    Dir.mkdir('output')
+    file_info = FileInfo.new(extension)
+    action = GenerateOutputFileAction.new(file_info)
+    action.transform(product)
+
+    # Expect the product to contain the created filename
+    expect(product.file).to eq("output/#{filename}.#{extension}")
   end
 end
