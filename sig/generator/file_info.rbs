@@ -2,5 +2,5 @@ class FileInfo
   attr_reader extension: String
   attr_reader preamble: String
 
-  def initialize: (String extension, String preamble) -> void
+  def initialize: (String extension, ?String preamble) -> void
 end
