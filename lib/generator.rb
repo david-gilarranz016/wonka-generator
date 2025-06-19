@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'yaml'
+require 'securerandom'
 
 require_relative 'generator/fragment'
 require_relative 'generator/configuration'
@@ -11,3 +12,4 @@ require_relative 'generator/add_code_fragment_action'
 require_relative 'generator/stage'
 require_relative 'generator/generator'
 require_relative 'generator/file_info'
+require_relative 'generator/generate_output_file_action'

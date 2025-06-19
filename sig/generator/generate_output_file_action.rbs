@@ -1,0 +1,6 @@
+class GenerateOutputFileAction
+  @file_info: FileInfo
+
+  def initialize: (FileInfo file_info) -> void
+  def transform: (Product product) -> void
+end
