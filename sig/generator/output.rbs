@@ -1,4 +1,5 @@
 module Output
   PHP: FileInfo
   GIF: FileInfo
+  PNG: FileInfo
 end
