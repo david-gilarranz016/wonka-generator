@@ -1,0 +1,3 @@
+class PhpObfuscator
+  def obfuscate: (String code) -> String
+end
