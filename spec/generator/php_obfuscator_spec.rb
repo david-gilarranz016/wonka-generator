@@ -74,6 +74,29 @@ describe PhpObfuscator do
 
     run_symbol_length_scenario(code, 'function', 2)
   end
+
+  it 'replaces variable names with random letters' do
+    code = '<?php $var = 1; ?>'
+    run_obfuscates_variable_names_scenario(code)
+  end
+  
+  it 'replaces variable names with different random letters' do
+    code = '<?php class Test { $attr = 1; _construct($arg) { $this->attr = $arg; } } ?>'
+    run_obfuscates_variable_names_scenario(code)
+  end
+
+  it 'replaces variable names with 1-char strings' do
+    code = '<?php $test1 = 1; $test2 = 2; $this->test3 = 3 ?>'
+    run_variable_length_scenario(code, 1)
+  end
+
+  it 'replaces variable names with 2-char strings' do
+    code = '<?php '
+    30.times { |i| code << "$test#{i} = #{i};" }
+    code << '?>'
+
+    run_variable_length_scenario(code, 2)
+  end
 end
 
 ################################################################################
@@ -120,6 +143,41 @@ def run_symbol_length_scenario(code, symbol, length)
   obfuscated_symbols = result.scan(/#{symbol} \w+/).uniq.map { |match| match.sub("#{symbol} ", '') }
 
   # Expect the length of all symbols to equal the expected length
-  obfuscated_symbols.select! { |symbol| symbol.length != length }
+  obfuscated_symbols.reject! { |symbol| symbol.length == length }
   expect(obfuscated_symbols).to be_empty
+end
+
+def run_obfuscates_variable_names_scenario(code)
+  # Create an obfuscator and obfuscate the code
+  obfuscator = PhpObfuscator.new
+  result = obfuscator.obfuscate(code)
+
+  # Get all variables (except the keyword $this)
+  original_variables = extract_variables(code)
+  obfuscated_variables = extract_variables(result)
+
+  # Expect arrays to be different
+  expect(obfuscated_variables).not_to eq(original_variables)
+end
+
+def run_variable_length_scenario(code, length)
+  # Create an obfuscator and obfuscate the code
+  obfuscator = PhpObfuscator.new
+  result = obfuscator.obfuscate(code)
+
+  # Get all variables
+  variables = extract_variables(result)
+
+  # Expect the length of all symbols to equal the expected length
+  variables.reject! { |var| var.length == length }
+  expect(variables).to be_empty
+end
+
+def extract_variables(code)
+  variable_names = code.scan(/\$\w+/).map { |match| match.sub('$', '') }
+  variable_names += code.scan(/this->\w+/).map { |match| match.sub('this->', '') }
+  variable_names = variable_names.uniq
+  variable_names.delete('this')
+
+  variable_names
 end

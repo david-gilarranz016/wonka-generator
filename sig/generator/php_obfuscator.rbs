@@ -1,3 +1,4 @@
 class PhpObfuscator
   def obfuscate: (String code) -> String
+  def extract_variables: (String code) -> Array[String]
 end
