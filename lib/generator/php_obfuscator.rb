@@ -2,8 +2,11 @@ class PhpObfuscator
   def obfuscate(code)
     obfuscated_code = ''
 
-    # Remove newlines and whitespace except after '<?php ' tag
-    code.split("\n").each { |line| obfuscated_code << line.strip  }
+    code.split("\n").each do |line|
+      # Remove comments, newlines and whitespace except after '<?php ' tag
+      line.gsub!(%r{//.*$}, '')
+      obfuscated_code << line.strip
+    end
     obfuscated_code.sub!(/<\?php/, '<?php ')
 
     # Substitute all symbols with N-letter strings, where N is the minimum length required

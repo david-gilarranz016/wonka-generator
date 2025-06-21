@@ -56,7 +56,7 @@ describe PhpObfuscator do
     code = '<?php function Test {} ?>'
     run_obfuscates_symbol_names_scenario(code, 'function')
   end
-  
+
   it 'replaces function names with different random letters' do
     code = '<?php function test {} function differentTest {} ?>'
     run_obfuscates_symbol_names_scenario(code, 'function')
@@ -79,7 +79,7 @@ describe PhpObfuscator do
     code = '<?php $var = 1; ?>'
     run_obfuscates_variable_names_scenario(code)
   end
-  
+
   it 'replaces variable names with different random letters' do
     code = '<?php class Test { $attr = 1; _construct($arg) { $this->attr = $arg; } } ?>'
     run_obfuscates_variable_names_scenario(code)
@@ -96,6 +96,16 @@ describe PhpObfuscator do
     code << '?>'
 
     run_variable_length_scenario(code, 2)
+  end
+
+  it 'removes comments' do
+    code = "<?php\n// Comment\n?>"
+    run_removes_comments_scenario(code, ['// Comment'])
+  end
+
+  it 'removes different comment' do
+    code = "<?php\n// Different comment\n$variable = 3; // Second comment\n?>"
+    run_removes_comments_scenario(code, ['// Different comment', '// Second comment'])
   end
 end
 
@@ -173,6 +183,22 @@ def run_variable_length_scenario(code, length)
   expect(variables).to be_empty
 end
 
+def run_removes_comments_scenario(code, comments)
+  # Create an obfuscator and obfuscate the code
+  obfuscator = PhpObfuscator.new
+  result = obfuscator.obfuscate(code)
+
+  # Expect the result not to contain the comments
+  includes_comments = comments.any? { |comment| result.match? comment }
+  expect(includes_comments).to be_falsy
+end
+
+################################################################################
+#                                                                              #
+# Helper functions                                                             #
+#                                                                              #
+################################################################################
+
 def extract_variables(code)
   variable_names = code.scan(/\$\w+/).map { |match| match.sub('$', '') }
   variable_names += code.scan(/this->\w+/).map { |match| match.sub('this->', '') }
@@ -181,3 +207,4 @@ def extract_variables(code)
 
   variable_names
 end
+
