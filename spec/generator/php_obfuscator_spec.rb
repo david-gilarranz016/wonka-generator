@@ -30,45 +30,49 @@ describe PhpObfuscator do
   end
 
   it 'replaces class names with random letters' do
-    code = <<~PHP
-    <?php
-        class Test {}
-    ?>
-    PHP
-    run_obfuscates_class_names_scenario(code)
+    code = '<?php class Test {} ?>'
+    run_obfuscates_symbol_names_scenario(code, 'class')
   end
-  
+
   it 'replaces class names with different random letters' do
-    code = <<~PHP
-    <?php
-        class Test {}
-        class DifferentTest {}
-    ?>
-    PHP
-    run_obfuscates_class_names_scenario(code)
+    code = '<?php class Test {} class DifferentTest {} ?>'
+    run_obfuscates_symbol_names_scenario(code, 'class')
   end
 
   it 'replaces class names with 1-char strings' do
-    code = <<~PHP
-    <?php
-        class Test1 {} class Test2 {} class Test3 {}
-    ?>
-    PHP
-    run_symbol_length_scenario(code, 'class', 1) 
+    code = '<?php class Test1 {} class Test2 {} class Test3 {} ?>'
+    run_symbol_length_scenario(code, 'class', 1)
   end
 
   it 'replaces class names with 2-char strings' do
-    code = <<~PHP
-    <?php
-        class Test01 {} class Test02 {} class Test03 {} class Test04 {} class Test05 {}
-        class Test06 {} class Test07 {} class Test08 {} class Test09 {} class Test10 {}
-        class Test11 {} class Test12 {} class Test13 {} class Test14 {} class Test15 {}
-        class Test16 {} class Test17 {} class Test18 {} class Test19 {} class Test20 {}
-        class Test21 {} class Test22 {} class Test23 {} class Test24 {} class Test25 {}
-        class Test26 {} class Test27 {} class Test28 {} class Test29 {} class Test30 {}
-    ?>
-    PHP
-    run_symbol_length_scenario(code, 'class', 2) 
+    code = '<?php '
+    30.times { |i| code << "class Test#{i} {} " }
+    code << '?>'
+
+    run_symbol_length_scenario(code, 'class', 2)
+  end
+
+  it 'replaces function names with random letters' do
+    code = '<?php function Test {} ?>'
+    run_obfuscates_symbol_names_scenario(code, 'function')
+  end
+  
+  it 'replaces function names with different random letters' do
+    code = '<?php function test {} function differentTest {} ?>'
+    run_obfuscates_symbol_names_scenario(code, 'function')
+  end
+
+  it 'replaces function names with 1-char strings' do
+    code = '<?php function test1 {} function test2 {} function test3 {} ?>'
+    run_symbol_length_scenario(code, 'function', 1)
+  end
+
+  it 'replaces function names with 2-char strings' do
+    code = '<?php '
+    30.times { |i| code << "function test#{i} {} " }
+    code << '?>'
+
+    run_symbol_length_scenario(code, 'function', 2)
   end
 end
 
@@ -94,17 +98,17 @@ def run_removes_whitespace_scenario(code, expected_code)
   expect(result).to eq(expected_code)
 end
 
-def run_obfuscates_class_names_scenario(code)
+def run_obfuscates_symbol_names_scenario(code, symbol)
   # Create an obfuscator and obfuscate the code
   obfuscator = PhpObfuscator.new
   result = obfuscator.obfuscate(code)
 
-  # Get all class name from the original and obfuscated code
-  original_clases = code.scan(/class \w+/).map { |match| match.sub('class ', '') }
-  obfuscated_clases = result.scan(/class \w+/).map { |match| match.sub('class ', '') }
+  # Get all symbol names from the original and obfuscated code
+  original_symbols = code.scan(/#{symbol} \w+/).uniq.map { |match| match.sub("#{symbol} ", '') }
+  obfuscated_symbols = result.scan(/#{symbol} \w+/).uniq.map { |match| match.sub("#{symbol} ", '') }
 
   # Expect both sets to be different
-  expect(original_clases).not_to eq(obfuscated_clases)
+  expect(original_symbols).not_to eq(obfuscated_symbols)
 end
 
 def run_symbol_length_scenario(code, symbol, length)
@@ -113,7 +117,7 @@ def run_symbol_length_scenario(code, symbol, length)
   result = obfuscator.obfuscate(code)
 
   # Get all symbols of the specified type
-  obfuscated_symbols = result.scan(/#{symbol} \w+/).map { |match| match.sub("#{symbol} ", '') }
+  obfuscated_symbols = result.scan(/#{symbol} \w+/).uniq.map { |match| match.sub("#{symbol} ", '') }
 
   # Expect the length of all symbols to equal the expected length
   obfuscated_symbols.select! { |symbol| symbol.length != length }
