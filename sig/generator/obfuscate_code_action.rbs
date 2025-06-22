@@ -1,0 +1,6 @@
+class ObfuscateCodeAction
+  @obfuscator: _Obfuscator
+
+  def initialize: (_Obfuscator obfuscator) -> void
+  def transform: (Product product) -> void
+end
