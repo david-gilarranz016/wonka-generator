@@ -7,25 +7,25 @@
 describe PhpObfuscator do
   it 'removes newlines' do
     code = "<?php\nsystem($_GET['.*']);\n?>\n"
-    expected_code = /^<\?php system\(\$_GET\['.*'\]\);\?>$/
+    expected_code = /^<\?php system\(\$_GET\[".*"\]\);\?>$/
     run_removes_newlines_scenario(code, expected_code)
   end
 
   it 'removes newlines from a different fragment' do
     code = "<?php\n\n\nsystem($_POST['cmd']);\n?>\n"
-    expected_code = /^<\?php system\(\$_POST\['.*'\]\);\?>$/
+    expected_code = /^<\?php system\(\$_POST\[".*"\]\);\?>$/
     run_removes_newlines_scenario(code, expected_code)
   end
 
   it 'removes whitespace' do
     code = "<?php\n    system($_GET['cmd']);\n ?>\n"
-    expected_code = /^<\?php system\(\$_GET\['.*'\]\);\?>$/
+    expected_code = /^<\?php system\(\$_GET\[".*"\]\);\?>$/
     run_removes_whitespace_scenario(code, expected_code)
   end
 
   it 'removes whitespace from a different fragment' do
     code = "<?php\n\n\n\t   system($_POST['cmd']);\n  \n\t\n ?>\n"
-    expected_code = /^<\?php system\(\$_POST\['.*'\]\);\?>$/
+    expected_code = /^<\?php system\(\$_POST\[".*"\]\);\?>$/
     run_removes_whitespace_scenario(code, expected_code)
   end
 
@@ -108,6 +108,39 @@ describe PhpObfuscator do
     run_removes_comments_scenario(code, ['// Different comment', '// Second comment'])
   end
 
+  it 'does not remove url scheme' do
+    # Obfuscate sample code
+    code = "<?php\n$var = file_get_contents('php://input');\n?>"
+    obfuscator = PhpObfuscator.new 
+    result = obfuscator.obfuscate(code)
+
+    # Expect the obfuscated clode to include the full file_get_contents function
+    expect(result).to match(/file_get_contents\(".*"\);/)
+  end
+
+  it 'replaces namespace names with random letters' do
+    code = '<?php namespace Test; ?>'
+    run_obfuscates_symbol_names_scenario(code, 'namespace')
+  end
+
+  it 'replaces namespace names with different random letters' do
+    code = '<?php namespace Test; namespace DifferentTest; ?>'
+    run_obfuscates_symbol_names_scenario(code, 'namespace')
+  end
+
+  it 'replaces namespace names with 1-char strings' do
+    code = '<?php namespace Test1; namespace Test2; namespace Test3; ?>'
+    run_symbol_length_scenario(code, 'namespace', 1)
+  end
+
+  it 'replaces namespace names with 2-char strings' do
+    code = '<?php '
+    30.times { |i| code << "namespace Test#{i}; " }
+    code << '?>'
+
+    run_symbol_length_scenario(code, 'namespace', 2)
+  end
+
   it 'obfuscates string literals' do
     code = '<?php $var = "string";?>'
     encoding = [:oct, :oct, :oct, :hex, :hex, :oct]
@@ -136,27 +169,13 @@ describe PhpObfuscator do
     run_obfuscates_single_string_scenario(code, encoding, delimiter)
   end
 
-  it 'replaces namespace names with random letters' do
-    code = '<?php namespace Test; ?>'
-    run_obfuscates_symbol_names_scenario(code, 'namespace')
-  end
+  it 'forces all strings to use double quotes so as to make the encoding work' do
+    # Run the obfuscator on a sample code
+    code = "<?php $var = 'string';?>"
+    result = PhpObfuscator.new.obfuscate(code)
 
-  it 'replaces namespace names with different random letters' do
-    code = '<?php namespace Test; namespace DifferentTest; ?>'
-    run_obfuscates_symbol_names_scenario(code, 'namespace')
-  end
-
-  it 'replaces namespace names with 1-char strings' do
-    code = '<?php namespace Test1; namespace Test2; namespace Test3; ?>'
-    run_symbol_length_scenario(code, 'namespace', 1)
-  end
-
-  it 'replaces namespace names with 2-char strings' do
-    code = '<?php '
-    30.times { |i| code << "namespace Test#{i}; " }
-    code << '?>'
-
-    run_symbol_length_scenario(code, 'namespace', 2)
+    # Expect the result to contain two double quotes instead of single quotes
+    expect(result.count('"')).to be(2)
   end
 end
 
@@ -252,7 +271,7 @@ def run_obfuscates_single_string_scenario(code, encoding, delimiter)
   # Create an obfuscator and obfuscate the code
   obfuscator = PhpObfuscator.new
   result = obfuscator.obfuscate(code)
-  encoded_string = result.match(/#{delimiter}.*#{delimiter}/).to_s.gsub(delimiter, '')
+  encoded_string = result.match(/".*"/).to_s.gsub('"', '')
 
   # Build the expected string based on encoding
   expected_string = ''

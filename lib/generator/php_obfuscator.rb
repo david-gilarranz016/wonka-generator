@@ -2,11 +2,17 @@ class PhpObfuscator
   def obfuscate(code)
     obfuscated_code = ''
 
-    # Remove comments, newlines and whitespace except after '<?php ' tag
+    # Preprocess lines by obfuscating strings, deleting whitespace and comments
     code.split("\n").each do |line|
+      # Obfuscate strings in the line
+      line = obfuscate_strings(line)
+
+      # Remove comments, whitespace and newlines
       line.gsub!(%r{//.*$}, '')
       obfuscated_code << line.strip
     end
+
+    # Keep a space after the opening <?php tag
     obfuscated_code.sub!(/<\?php/, '<?php ')
 
     # Substitute all symbols with N-letter strings, where N is the minimum length required
@@ -20,8 +26,8 @@ class PhpObfuscator
 
     symbols.each { |symbol| obfuscated_code.gsub!(/\b#{symbol}\b/, pool.pop.to_s) }
 
-    # Return the result of obfuscating all strings in the obfuscated code
-    obfuscate_strings(obfuscated_code)
+    # Return the result of the obfuscation process
+    obfuscated_code
   end
 
   private
@@ -34,11 +40,11 @@ class PhpObfuscator
     # encode the following characters until the same delimiter is found again
     char = code.shift
     current_delimiter = nil
-    until char.nil? 
+    until char.nil?
       # Check if we are inside a string
       if current_delimiter.nil?
         # If not inside a string, check if a string should start
-        current_delimiter = char if ['"', "'"].include? char 
+        current_delimiter = char if ['"', "'"].include? char
       else
         # If inside a string, check if the current character closes the string
         if char == current_delimiter
@@ -55,6 +61,10 @@ class PhpObfuscator
       processed_code << char
       char = code.shift
     end
+
+    # Replace all single quotes with double quotes to force interpretaion of
+    # escape sequences
+    processed_code.gsub!("'", '"')
 
     # Return the processed code
     processed_code
