@@ -135,6 +135,29 @@ describe PhpObfuscator do
     encoding = [:oct, :hex, :hex, :hex, :oct, :oct, :hex, :oct]
     run_obfuscates_single_string_scenario(code, encoding, delimiter)
   end
+
+  it 'replaces namespace names with random letters' do
+    code = '<?php namespace Test; ?>'
+    run_obfuscates_symbol_names_scenario(code, 'namespace')
+  end
+
+  it 'replaces namespace names with different random letters' do
+    code = '<?php namespace Test; namespace DifferentTest; ?>'
+    run_obfuscates_symbol_names_scenario(code, 'namespace')
+  end
+
+  it 'replaces namespace names with 1-char strings' do
+    code = '<?php namespace Test1; namespace Test2; namespace Test3; ?>'
+    run_symbol_length_scenario(code, 'namespace', 1)
+  end
+
+  it 'replaces namespace names with 2-char strings' do
+    code = '<?php '
+    30.times { |i| code << "namespace Test#{i}; " }
+    code << '?>'
+
+    run_symbol_length_scenario(code, 'namespace', 2)
+  end
 end
 
 ################################################################################

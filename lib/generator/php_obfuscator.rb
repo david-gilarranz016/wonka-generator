@@ -12,6 +12,7 @@ class PhpObfuscator
     # Substitute all symbols with N-letter strings, where N is the minimum length required
     symbols = code.scan(/class \w+/).uniq.map { |match| match.to_s.sub('class ', '') }
     symbols += code.scan(/function \w+/).uniq.map { |match| match.to_s.sub('function ', '') }
+    symbols += code.scan(/namespace \w+/).uniq.map { |match| match.to_s.sub('namespace ', '') }
     symbols += extract_variables(obfuscated_code)
 
     n = (symbols.length / 26.0).ceil
