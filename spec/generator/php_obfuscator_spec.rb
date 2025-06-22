@@ -6,26 +6,26 @@
 
 describe PhpObfuscator do
   it 'removes newlines' do
-    code = "<?php\nsystem($_GET['cmd']);\n?>\n"
-    expected_code = "<?php system($_GET['cmd']);?>"
+    code = "<?php\nsystem($_GET['.*']);\n?>\n"
+    expected_code = /^<\?php system\(\$_GET\['.*'\]\);\?>$/
     run_removes_newlines_scenario(code, expected_code)
   end
 
   it 'removes newlines from a different fragment' do
     code = "<?php\n\n\nsystem($_POST['cmd']);\n?>\n"
-    expected_code = "<?php system($_POST['cmd']);?>"
+    expected_code = /^<\?php system\(\$_POST\['.*'\]\);\?>$/
     run_removes_newlines_scenario(code, expected_code)
   end
 
   it 'removes whitespace' do
     code = "<?php\n    system($_GET['cmd']);\n ?>\n"
-    expected_code = "<?php system($_GET['cmd']);?>"
+    expected_code = /^<\?php system\(\$_GET\['.*'\]\);\?>$/
     run_removes_whitespace_scenario(code, expected_code)
   end
 
   it 'removes whitespace from a different fragment' do
     code = "<?php\n\n\n\t   system($_POST['cmd']);\n  \n\t\n ?>\n"
-    expected_code = "<?php system($_POST['cmd']);?>"
+    expected_code = /^<\?php system\(\$_POST\['.*'\]\);\?>$/
     run_removes_whitespace_scenario(code, expected_code)
   end
 
@@ -107,6 +107,34 @@ describe PhpObfuscator do
     code = "<?php\n// Different comment\n$variable = 3; // Second comment\n?>"
     run_removes_comments_scenario(code, ['// Different comment', '// Second comment'])
   end
+
+  it 'obfuscates string literals' do
+    code = '<?php $var = "string";?>'
+    encoding = [:oct, :oct, :oct, :hex, :hex, :oct]
+    delimiter = '"'
+    run_obfuscates_single_string_scenario(code, encoding, delimiter)
+  end
+
+  it 'obfuscates different string literals' do
+    code = "<?php $var = 'string';?>"
+    encoding = [:hex, :oct, :hex, :hex, :oct, :hex]
+    delimiter = "'"
+    run_obfuscates_single_string_scenario(code, encoding, delimiter)
+  end
+
+  it 'obfuscates interlaced string literals' do
+    code = "<?php $var1 = '\"string\"';?>"
+    encoding = [:hex, :oct, :oct, :hex, :oct, :hex, :hex, :hex]
+    delimiter = "'"
+    run_obfuscates_single_string_scenario(code, encoding, delimiter)
+  end
+
+  it 'obfuscates different interlaced string literals' do
+    code = '<?php $var1 = "\'string\'";?>'
+    delimiter = '"'
+    encoding = [:oct, :hex, :hex, :hex, :oct, :oct, :hex, :oct]
+    run_obfuscates_single_string_scenario(code, encoding, delimiter)
+  end
 end
 
 ################################################################################
@@ -120,7 +148,7 @@ def run_removes_newlines_scenario(code, expected_code)
   obfuscator = PhpObfuscator.new
   result = obfuscator.obfuscate(code)
 
-  expect(result).to eq(expected_code)
+  expect(result).to match(expected_code)
 end
 
 def run_removes_whitespace_scenario(code, expected_code)
@@ -128,7 +156,7 @@ def run_removes_whitespace_scenario(code, expected_code)
   obfuscator = PhpObfuscator.new
   result = obfuscator.obfuscate(code)
 
-  expect(result).to eq(expected_code)
+  expect(result).to match(expected_code)
 end
 
 def run_obfuscates_symbol_names_scenario(code, symbol)
@@ -191,6 +219,28 @@ def run_removes_comments_scenario(code, comments)
   # Expect the result not to contain the comments
   includes_comments = comments.any? { |comment| result.match? comment }
   expect(includes_comments).to be_falsy
+end
+
+def run_obfuscates_single_string_scenario(code, encoding, delimiter)
+  # Mock Array.sample to return the supplied values
+  return_values = encoding.clone
+  allow_any_instance_of(Array).to receive(:sample) { return_values.shift }
+
+  # Create an obfuscator and obfuscate the code
+  obfuscator = PhpObfuscator.new
+  result = obfuscator.obfuscate(code)
+  encoded_string = result.match(/#{delimiter}.*#{delimiter}/).to_s.gsub(delimiter, '')
+
+  # Build the expected string based on encoding
+  expected_string = ''
+  string = code.match(/#{delimiter}.*#{delimiter}/).to_s.gsub(delimiter, '')
+  string.bytes.zip(encoding).each do |character, encoding|
+    encoded_char = encoding == :oct ? '\\%03o' % character : '\\x%02x' % character
+    expected_string << encoded_char
+  end
+
+  # Compare both strings
+  expect(encoded_string).to eq(expected_string)
 end
 
 ################################################################################

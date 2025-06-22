@@ -2,8 +2,8 @@ class PhpObfuscator
   def obfuscate(code)
     obfuscated_code = ''
 
+    # Remove comments, newlines and whitespace except after '<?php ' tag
     code.split("\n").each do |line|
-      # Remove comments, newlines and whitespace except after '<?php ' tag
       line.gsub!(%r{//.*$}, '')
       obfuscated_code << line.strip
     end
@@ -19,10 +19,45 @@ class PhpObfuscator
 
     symbols.each { |symbol| obfuscated_code.gsub!(/\b#{symbol}\b/, pool.pop.to_s) }
 
-    obfuscated_code
+    # Return the result of obfuscating all strings in the obfuscated code
+    obfuscate_strings(obfuscated_code)
   end
 
   private
+
+  def obfuscate_strings(code)
+    processed_code = ''
+    code = code.chars
+
+    # Small finite state machine -> iterate through code. If string delimiter is found,
+    # encode the following characters until the same delimiter is found again
+    char = code.shift
+    current_delimiter = nil
+    until char.nil? 
+      # Check if we are inside a string
+      if current_delimiter.nil?
+        # If not inside a string, check if a string should start
+        current_delimiter = char if ['"', "'"].include? char 
+      else
+        # If inside a string, check if the current character closes the string
+        if char == current_delimiter
+          # If so, unset the inside-string flag
+          current_delimiter = nil
+        else
+          # If not, encode the current character
+          encoding = [:oct, :hex].sample
+          char = encoding == :oct ? '\\%03o' % char.ord : '\\x%02x' % char.ord
+        end
+      end
+
+      # Add the processed char to the string and continue
+      processed_code << char
+      char = code.shift
+    end
+
+    # Return the processed code
+    processed_code
+  end
 
   def extract_variables(code)
     # Extract all variables
