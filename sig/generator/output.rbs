@@ -3,4 +3,5 @@ module Output
   GIF: FileInfo
   PNG: FileInfo
   JPG: FileInfo
+  PYTHON: FileInfo
 end

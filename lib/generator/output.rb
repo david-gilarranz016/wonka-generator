@@ -16,4 +16,5 @@ module Output
     '00000009ffc40014100100000000000000000000000000000000ffda0008'\
     '010100003f0054dfffd9'
   )
+  PYTHON = FileInfo.new('py')
 end
