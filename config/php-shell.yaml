@@ -1,0 +1,32 @@
+---
+fragments:
+  - key: base
+    sources:
+      - shells/php/base.php
+    arguments:
+      - KEY
+  - key: execute-command-alternatives
+    sources:
+      - shells/php/execute-command-alternatives.php
+  - key: execute-command-no-alternatives
+    sources:
+      - shells/php/execute-command-no-alternatives.php
+  - key: file-download
+    sources:
+      - shells/php/file-download.php
+  - key: file-upload
+    sources:
+      - shells/php/file-upload.php
+  - key: ip-validation
+    sources:
+      - shells/php/ip-validation.php
+    arguments:
+      - IP_WHITELIST
+  - key: nonce-validation
+    sources:
+      - shells/php/nonce-validation.php
+    arguments:
+      - NONCE
+  - key: footer
+    sources:
+      - shells/php/footer.php

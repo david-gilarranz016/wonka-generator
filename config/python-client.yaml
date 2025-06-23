@@ -1,0 +1,20 @@
+---
+fragments:
+  - key: base
+    sources:
+      - clients/python/singleton.py
+      - clients/python/action.py
+      - clients/python/cypher.py
+      - clients/python/history_service.py
+      - clients/python/http_service.py
+      - clients/python/delete_history_action.py
+      - clients/python/download_file_action.py
+      - clients/python/execute_command_action.py
+      - clients/python/show_help_action.py
+      - clients/python/show_history_action.py
+      - clients/python/upload_file_action.py
+      - clients/python/client.py
+      - clients/python/__main__.py
+    arguments:
+      - KEY
+      - NONCE
