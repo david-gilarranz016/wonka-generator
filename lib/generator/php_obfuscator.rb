@@ -1,4 +1,7 @@
 class PhpObfuscator
+
+  WHITELIST = %w{body iv cmd args filename binary nonce action content __construct}
+
   def obfuscate(code)
     obfuscated_code = ''
 
@@ -20,6 +23,8 @@ class PhpObfuscator
     symbols += code.scan(/function \w+/).uniq.map { |match| match.to_s.sub('function ', '') }
     symbols += code.scan(/namespace \w+/).uniq.map { |match| match.to_s.sub('namespace ', '') }
     symbols += extract_variables(obfuscated_code)
+    symbols.reject! { |s| WHITELIST.include?(s) }
+    symbols.uniq!
 
     n = (symbols.length / 26.0).ceil
     pool = ('a' * n..'z' * n).to_a.shuffle

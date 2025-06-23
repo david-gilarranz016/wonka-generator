@@ -177,6 +177,46 @@ describe PhpObfuscator do
     # Expect the result to contain two double quotes instead of single quotes
     expect(result.count('"')).to be(2)
   end
+
+  it 'does not obfuscate "__construct" function' do
+    run_keeps_special_symbol_scenario('__construct', :function)
+  end
+
+  it 'does not obfuscate "body" variable' do
+    run_keeps_special_symbol_scenario('body', :variable)
+  end
+  
+  it 'does not obfuscate "iv" variable' do
+    run_keeps_special_symbol_scenario('iv', :variable)
+  end
+
+  it 'does not obfuscate "action" variable' do
+    run_keeps_special_symbol_scenario('action', :variable)
+  end
+
+  it 'does not obfuscate "args" variable' do
+    run_keeps_special_symbol_scenario('args', :variable)
+  end
+
+  it 'does not obfuscate "nonce" variable' do
+    run_keeps_special_symbol_scenario('nonce', :variable)
+  end
+  
+  it 'does not obfuscate "cmd" variable' do
+    run_keeps_special_symbol_scenario('cmd', :variable)
+  end
+
+  it 'does not obfuscate "filename" variable' do
+    run_keeps_special_symbol_scenario('filename', :variable)
+  end
+
+  it 'does not obfuscate "content" variable' do
+    run_keeps_special_symbol_scenario('content', :variable)
+  end
+
+  it 'does not obfuscate "binary" variable' do
+    run_keeps_special_symbol_scenario('binary', :variable)
+  end
 end
 
 ################################################################################
@@ -283,6 +323,18 @@ def run_obfuscates_single_string_scenario(code, encoding, delimiter)
 
   # Compare both strings
   expect(encoded_string).to eq(expected_string)
+end
+
+def run_keeps_special_symbol_scenario(symbol, type)
+  # Craft a sample code
+  code = "<?php #{type == :variable ? '$this->' : 'function '}#{symbol};?>"
+
+  # Run the obfuscator
+  obfuscator = PhpObfuscator.new
+  result = obfuscator.obfuscate(code)
+
+  # Expect the result to contain the symbol
+  expect(result).to include(symbol)
 end
 
 ################################################################################
