@@ -6,14 +6,33 @@ class App < Sinatra::Base
 
   get '/web-shell' do
     # Read available technologies and return them
-    response = YAML.load_file('config/api/api.yaml')['shells'].map do |shell|
+    technologies = YAML.load_file('config/api/api.yaml')['shells'].map do |shell|
       {
         'technology' => shell['technology'],
         'url' => "/web-shell/#{shell['technology']}"
       }
     end
 
-    # JSON encode and send the response
-    response.to_json
+    # Convert the technologies array to JSON and send the response
+    technologies.to_json
+  end
+
+  get '/web-shell/:technology' do |technology|
+    # Read the features for the requested technology
+    shell = YAML.load_file('config/api/api.yaml')['shells']
+                .select { |shell| shell['technology'] == technology }
+                .first
+
+    # Check if the reuqested technology exists
+    if shell.nil?
+      status 404
+      response = nil
+    else
+      # Convert the response to JSON and send it
+      response = shell['features'].to_json
+    end
+
+    # Return the response
+    response
   end
 end
