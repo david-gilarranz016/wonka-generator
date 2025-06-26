@@ -11,6 +11,7 @@ gem 'openssl'
 gem 'puma'
 gem 'rake'
 gem 'sinatra'
+gem 'json-schema'
 
 # Development gems
 group :development do

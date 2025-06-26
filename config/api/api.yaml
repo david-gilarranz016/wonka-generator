@@ -1,0 +1,42 @@
+---
+shells:
+  - technology: php
+    features:
+      - key: execute-command-no-alternatives
+        name: Command Execution
+        type: feature
+        description: Add command execution support to the generated web shell. 
+      - key: execute-command-alternatives
+        name: Identify Execution Alternatives
+        type: feature
+        description: |-
+          The generated web shell will look for different execution methods in order
+          to bypass certain blocked functions.
+      - key: file-download
+        name: File Download
+        type: feature
+        description: |-
+          Add file download support to the web shell. This will allow secure data
+          exfiltration using the established connection.
+      - key: file-upload
+        name: File Upload
+        type: feature
+        description: |-
+          Add file upload support to the web shell, allowing the upload of tools
+          to the target.
+      - key: ip-validation
+        name: IP Validation
+        type: security
+        description: Restrict inbound connections to the specified IP whitelist.
+        input:
+          type: text
+          placeholder: 10.128.20.1, 41.310.135.13
+          label: Allowed IPs
+      - key: nonce-validation
+        name: Replay protection
+        type: security
+        description: |-
+          Add a random nonce to communications between the client and the web shell
+          to prevent messages to be captured and replayed by a third party.
+clients:
+  - technology: python

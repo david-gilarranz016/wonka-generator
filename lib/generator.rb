@@ -3,6 +3,7 @@
 require 'yaml'
 require 'securerandom'
 require 'openssl'
+require 'sinatra/base'
 
 require_relative 'generator/fragment'
 require_relative 'generator/configuration'
@@ -17,3 +18,5 @@ require_relative 'generator/generate_output_file_action'
 require_relative 'generator/output'
 require_relative 'generator/php_obfuscator'
 require_relative 'generator/obfuscate_code_action'
+
+require_relative 'api/app.rb'
