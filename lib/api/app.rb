@@ -35,4 +35,16 @@ class App < Sinatra::Base
     # Return the response
     response
   end
+
+  get '/client' do
+    # Read available technologies and return them
+    technologies = YAML.load_file('config/api/api.yaml')['clients'].map do |client|
+      {
+        'technology' => client['technology']
+      }
+    end
+
+    # Convert the technologies array to JSON and send the response
+    technologies.to_json
+  end
 end
