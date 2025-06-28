@@ -124,5 +124,45 @@ describe App do
       # Expect the status code to be 400
       expect(last_response.status).to be(400)
     end
+
+    it 'returns 400 if requested inexistent feature' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'non-existent'
+          }
+        ]
+      }.to_json
+
+      # Perform the action
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' } )
+
+      # Expect the status code to be 400
+      expect(last_response.status).to be(400)
+    end
+
+    it 'returns 400 if feature does not match its schema' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'ip-validator',
+            arguments: [
+              name: 'ip_whitelist',
+              value: 'Not an IP, 10.10.10.10'
+            ]
+          }
+        ]
+      }.to_json
+
+      # Perform the action
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' } )
+
+      # Expect the status code to be 400
+      expect(last_response.status).to be(400)
+    end
   end
 end
