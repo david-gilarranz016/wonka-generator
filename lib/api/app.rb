@@ -51,33 +51,6 @@ class App < Sinatra::Base
   post '/generator' do
     # Validate the request
     body = JSON.parse(request.body.read)
-    halt 400 unless validate(body)
-  end
-
-  private
-
-  def validate(body)
-    valid = true
-    config = YAML.load_file('config/api/api.yaml')
-    schemas = YAML.load_file('config/api/schemas.yaml')
-
-    # Validate requested technologies
-    valid &&= config['shells'].map { |shell| shell['technology'] }.include? body['shell']
-    valid &&= config['clients'].map { |client| client['technology'] }.include? body['client']
-
-    # Validate all features
-    feature = body.key?('features') ? body['features'].pop : nil
-    valid &&= feature.nil?
-
-    unless valid || feature.nil?
-      # Check if the feature exists and validate it against it's JSON schema
-      schema = schemas.reject { |schema| schema['key'] == feature }
-      valid &&= !schema.nil? && JSON::Validator.validate(schema, feature)
-
-      # Get next feature
-      feature = body['features'].pop
-    end
-
-    valid
+    halt 400 unless SecurityService.instance.valid?(body)
   end
 end

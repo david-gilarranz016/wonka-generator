@@ -164,5 +164,27 @@ describe App do
       # Expect the status code to be 400
       expect(last_response.status).to be(400)
     end
+
+    it 'returns 400 if output is invalid' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'file-upload'
+          }
+        ],
+        output: {
+          format: 'non-valid',
+          'obfuscate-code': true
+        }
+      }.to_json
+
+      # Perform the action
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the status code to be 400
+      expect(last_response.status).to be(400)
+    end
   end
 end
