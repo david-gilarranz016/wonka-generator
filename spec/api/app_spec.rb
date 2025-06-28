@@ -107,8 +107,22 @@ describe App do
       # Perform the action
       post('/generator', body, { 'CONTENT_TYPE' => 'application/json' } )
 
-      # Expect the header to be SET
-      expect(last_response.headers['Content-Type']).to eq('application/json')
+      # Expect the status code to be 400
+      expect(last_response.status).to be(400)
+    end
+
+    it 'returns 400 if requested invalid client technology' do
+      body = {
+        shell: 'php',
+        client: 'non-valid',
+        features: []
+      }.to_json
+
+      # Perform the action
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' } )
+
+      # Expect the status code to be 400
+      expect(last_response.status).to be(400)
     end
   end
 end

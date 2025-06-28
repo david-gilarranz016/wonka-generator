@@ -51,7 +51,7 @@ class App < Sinatra::Base
   post '/generator' do
     # Validate the request
     body = JSON.parse(request.body.read)
-    halt 403 unless validate(body)
+    halt 400 unless validate(body)
   end
 
   private
@@ -60,8 +60,9 @@ class App < Sinatra::Base
     valid = true
     config = YAML.load_file('config/api/api.yaml')
 
-    # Validate requested technology
+    # Validate requested technologies
     valid &&= config['shells'].map { |shell| shell['technology'] }.include? body['shell']
+    valid &&= config['clients'].map { |client| client['technology'] }.include? body['client']
 
     valid
   end
