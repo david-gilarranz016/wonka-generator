@@ -47,4 +47,22 @@ class App < Sinatra::Base
     # Convert the technologies array to JSON and send the response
     technologies.to_json
   end
+
+  post '/generator' do
+    # Validate the request
+    body = JSON.parse(request.body.read)
+    halt 403 unless validate(body)
+  end
+
+  private
+
+  def validate(body)
+    valid = true
+    config = YAML.load_file('config/api/api.yaml')
+
+    # Validate requested technology
+    valid &&= config['shells'].map { |shell| shell['technology'] }.include? body['shell']
+
+    valid
+  end
 end

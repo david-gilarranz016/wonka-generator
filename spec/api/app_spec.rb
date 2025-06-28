@@ -87,4 +87,28 @@ describe App do
       expect(last_response.headers['Content-Type']).to eq('application/json')
     end
   end
+
+  describe 'when receiving a POST request to /generator' do
+    it 'adds Content-Type JSON header' do
+      # Perform the action
+      post('/generator', { 'test' => 'test'}.to_json, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the header to be SET
+      expect(last_response.headers['Content-Type']).to eq('application/json')
+    end
+
+    it 'returns 400 if requested invalid shell technology' do
+      body = {
+        shell: 'non-valid',
+        client: 'python',
+        features: []
+      }.to_json
+
+      # Perform the action
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' } )
+
+      # Expect the header to be SET
+      expect(last_response.headers['Content-Type']).to eq('application/json')
+    end
+  end
 end
