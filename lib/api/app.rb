@@ -56,8 +56,8 @@ class App < Sinatra::Base
     # Generate the shell and client
     key = SecureRandom.hex(64)
     nonce = SecureRandom.hex(32)
-    shell_info = generate_web_shell(body, key, nonce)
-    client_info = generate_client(body, key, nonce)
+    shell_info = GeneratorBuilder.instance.build_shell_generator(body, key, nonce).generate
+    client_info = GeneratorBuilder.instance.build_client_generator(body, key, nonce).generate
 
     # Create the response
     {
@@ -76,76 +76,5 @@ class App < Sinatra::Base
         }
       }
     }.to_json
-  end
-
-  private
-
-  def generate_web_shell(body, key, nonce)
-    # Create a code factory for the requested shell technology
-    config_file = File.read("config/generator/shells/#{body['shell']}.yaml")
-    configuration = ConfigurationParser.parse(config_file)
-    code_factory = CodeFactory.new(configuration)
-
-    # Create the stage array and add the initial Base stage
-    stages = []
-    stages << Stage.new([AddCodeFragmentAction.new(code_factory, 'base', { 'KEY' => key })])
-
-    # Add the "feature" stage, where all requested features are added
-    actions = []
-    body['features'].each do |feature|
-      # Get the requested feature's key
-      key = feature['key']
-
-      # If there are arguments, build the argument's hash. Special case -> nonce
-      arguments = {}
-      if key == 'nonce-validation'
-        arguments['NONCE'] = nonce
-      elsif !feature['arguments'].nil?
-        feature['arguments'].each { |argument| arguments[argument['name']] = argument['value'] }
-      else
-        arguments = nil
-      end
-
-      # Add the feature to the stage
-      actions << AddCodeFragmentAction.new(code_factory, key, arguments)
-    end
-    stages << Stage.new(actions)
-
-    # Add the Footer stage to complete the shell generation
-    stages << Stage.new([AddCodeFragmentAction.new(code_factory, 'footer')])
-
-    # Add the output generation stage
-    actions = []
-    obfuscator = Object.const_get("#{body['shell'].capitalize}Obfuscator").new
-    actions << ObfuscateCodeAction.new(PhpObfuscator.new) if body['output']['obfuscate-code']
-
-    format = Output.constants.detect { |format| format == body['output']['format'].upcase.to_sym }
-    format = Output.const_get(format)
-    actions << GenerateOutputFileAction.new(format)
-    stages << Stage.new(actions)
-
-    # Generate the requested shell
-    generator = Generator.new(stages)
-    generator.generate
-  end
-
-  def generate_client(body, key, nonce)
-    # Create a code factory for the requested client technology
-    config_file = File.read("config/generator/shells/#{body['shell']}.yaml")
-    configuration = ConfigurationParser.parse(config_file)
-    code_factory = CodeFactory.new(configuration)
-
-    # Create the stage array and add the base stage
-    stages = []
-    stages << Stage.new([AddCodeFragmentAction.new(code_factory, 'base', { 'KEY' => key, 'NONCE' => nonce })])
-
-    # Add the output generation stage
-    format = Output.constants.detect { |format| format == body['client'].upcase.to_sym }
-    format = Output.const_get(format)
-    stages << Stage.new([GenerateOutputFileAction.new(format)])
-
-    # Generate the client and return the result
-    generator = Generator.new(stages)
-    generator.generate
   end
 end

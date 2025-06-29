@@ -22,3 +22,4 @@ require_relative 'generator/obfuscate_code_action'
 
 require_relative 'api/app'
 require_relative 'api/security_service'
+require_relative 'api/generator_builder'
