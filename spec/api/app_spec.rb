@@ -186,5 +186,152 @@ describe App do
       # Expect the status code to be 400
       expect(last_response.status).to be(400)
     end
+
+    it 'generates PHP webshell matching its checksum' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'file-upload'
+          }
+        ],
+        output: {
+          format: 'png',
+          'obfuscate-code': true
+        }
+      }.to_json
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Get the checksum of the generated file and compare it with the requested one
+      response = JSON.parse(last_response.body)
+      expected_checksum = OpenSSL::Digest::SHA256.file(response['shell']['url'].delete_prefix('/'))
+      expect(response['shell']['checksum']['value']).to eq(expected_checksum.to_s)
+
+      # Expect the returned algorithm to be SHA256
+      expect(response['shell']['checksum']['algorithm']).to eq('SHA256')
+    end
+
+    it 'generates PHP webshell with requested features' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'file-upload'
+          },
+          {
+            key: 'execute-command-alternatives'
+          }
+        ],
+        output: {
+          format: 'gif',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the generated file to include the requested features
+      response = JSON.parse(last_response.body)
+      shell = File.read(response['shell']['url'].delete_prefix('/'))
+
+      expect(shell).to include('class UploadFileAction')
+      expect(shell).to include('class IdentifyExecutionAlternatives')
+    end
+
+    it 'generates PHP webshell with randomly generated KEY' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'file-upload'
+          }
+        ],
+        output: {
+          format: 'gif',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      # Mock secure random to return mock key
+      key = SecureRandom.hex(64)
+      allow(SecureRandom).to receive(:hex).and_return(key)
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the generated file to include the key
+      response = JSON.parse(last_response.body)
+      shell = File.read(response['shell']['url'].delete_prefix('/'))
+
+      expect(shell).to include(key)
+      expect(SecureRandom).to have_received(:hex).with(64).at_least(:once)
+    end
+
+    it 'generates PHP webshell with randomly generated NONCE if requested' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'nonce-validation'
+          }
+        ],
+        output: {
+          format: 'gif',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      # Mock secure random to return mock nonce
+      nonce = SecureRandom.hex(32)
+      allow(SecureRandom).to receive(:hex).and_return(nonce)
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the generated file to include the key
+      response = JSON.parse(last_response.body)
+      shell = File.read(response['shell']['url'].delete_prefix('/'))
+
+      expect(shell).to include(nonce)
+      expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
+    end
+
+    it 'generates PHP obfuscated webshell' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'file-upload'
+          },
+          {
+            key: 'execute-command-alternatives'
+          }
+        ],
+        output: {
+          format: 'php',
+          'obfuscate-code': true
+        }
+      }.to_json
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Read the generated shell
+      response = JSON.parse(last_response.body)
+      shell = File.read(response['shell']['url'].delete_prefix('/'))
+
+      # Expect the shell to be obfuscated -> check there are no newlines and strings
+      # are obfuscated
+      expect(shell).not_to include("\n")
+      expect(shell).to match(/".*\\x\d\d.*"/)
+    end
   end
 end
