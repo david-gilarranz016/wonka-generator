@@ -333,5 +333,92 @@ describe App do
       expect(shell).not_to include("\n")
       expect(shell).to match(/".*\\x\d\d.*"/)
     end
+
+    it 'generates Python client matching its checksum' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'file-upload'
+          }
+        ],
+        output: {
+          format: 'png',
+          'obfuscate-code': true
+        }
+      }.to_json
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Get the checksum of the generated file and compare it with the requested one
+      response = JSON.parse(last_response.body)
+      expected_checksum = OpenSSL::Digest::SHA256.file(response['client']['url'].delete_prefix('/'))
+      expect(response['client']['checksum']['value']).to eq(expected_checksum.to_s)
+
+      # Expect the returned algorithm to be SHA256
+      expect(response['client']['checksum']['algorithm']).to eq('SHA256')
+    end
+
+    it 'generates Python client with randomly generated KEY' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'file-upload'
+          }
+        ],
+        output: {
+          format: 'gif',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      # Mock secure random to return mock key
+      key = SecureRandom.hex(64)
+      allow(SecureRandom).to receive(:hex).and_return(key)
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the generated file to include the key
+      response = JSON.parse(last_response.body)
+      client = File.read(response['client']['url'].delete_prefix('/'))
+
+      expect(client).to include(key)
+      expect(SecureRandom).to have_received(:hex).with(64).at_least(:once)
+    end
+
+    it 'generates Python client with randomly generated NONCE' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'nonce-validation'
+          }
+        ],
+        output: {
+          format: 'gif',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      # Mock secure random to return mock nonce
+      nonce = SecureRandom.hex(32)
+      allow(SecureRandom).to receive(:hex).and_return(nonce)
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the generated file to include the key
+      response = JSON.parse(last_response.body)
+      client = File.read(response['client']['url'].delete_prefix('/'))
+
+      expect(client).to include(nonce)
+      expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
+    end
   end
 end

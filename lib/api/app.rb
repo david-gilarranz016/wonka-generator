@@ -57,6 +57,7 @@ class App < Sinatra::Base
     key = SecureRandom.hex(64)
     nonce = SecureRandom.hex(32)
     shell_info = generate_web_shell(body, key, nonce)
+    client_info = generate_client(body, key, nonce)
 
     # Create the response
     {
@@ -65,6 +66,13 @@ class App < Sinatra::Base
         checksum: {
           algorithm: 'SHA256',
           value: shell_info.checksum
+        }
+      },
+      client: {
+        url: '/' + client_info.file,
+        checksum: {
+          algorithm: 'SHA256',
+          value: client_info.checksum
         }
       }
     }.to_json
@@ -117,6 +125,26 @@ class App < Sinatra::Base
     stages << Stage.new(actions)
 
     # Generate the requested shell
+    generator = Generator.new(stages)
+    generator.generate
+  end
+
+  def generate_client(body, key, nonce)
+    # Create a code factory for the requested client technology
+    config_file = File.read("config/generator/shells/#{body['shell']}.yaml")
+    configuration = ConfigurationParser.parse(config_file)
+    code_factory = CodeFactory.new(configuration)
+
+    # Create the stage array and add the base stage
+    stages = []
+    stages << Stage.new([AddCodeFragmentAction.new(code_factory, 'base', { 'KEY' => key, 'NONCE' => nonce })])
+
+    # Add the output generation stage
+    format = Output.constants.detect { |format| format == body['client'].upcase.to_sym }
+    format = Output.const_get(format)
+    stages << Stage.new([GenerateOutputFileAction.new(format)])
+
+    # Generate the client and return the result
     generator = Generator.new(stages)
     generator.generate
   end
