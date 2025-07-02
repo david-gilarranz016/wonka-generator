@@ -39,29 +39,29 @@ shells:
         description: |-
           Add a random nonce to communications between the client and the web shell
           to prevent messages to be captured and replayed by a third party.
-      - key: php-output
+      - key: php
         name: PHP
         type: output,format
         description: Create a PHP file containing the generated web shell.
-      - key: jpg-output
+      - key: jpg
         name: JGP
         type: output,format
         description: |-
           Embed the PHP web shell inside a valid JPG file. Note that the file extension
           will to be changed before/after uploading to make it executable.
-      - key: png-output
+      - key: png
         name: PNG
         type: output,format
         description: |-
           Embed the PHP web shell inside a valid PNG file. Note that the file extension
           will to be changed before/after uploading to make it executable.
-      - key: gif-output
+      - key: gif
         name: GIF
         type: output,format
         description: |-
           Add the GIF magic bytes to the generated shell. Note that the file extension
           will to be changed before/after uploading to make it executable.
-      - key: ofbuscate-code
+      - key: ofbuscate
         name: Obfuscate code
         type: output,option
         description: Obfuscate the generated web shell.
