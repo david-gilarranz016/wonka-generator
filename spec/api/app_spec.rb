@@ -332,6 +332,35 @@ describe App do
       expect(shell).to include('"10.10.10.10","::1"')
     end
 
+    it 'generates PHP webshell with single correctly formatted IP if requested' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'ip-validation',
+            arguments: [
+              name: 'IP_WHITELIST',
+              value: '10.10.10.10'
+            ]
+          }
+        ],
+        output: {
+          format: 'gif',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the generated file to include the IPs surrounded by quotes
+      response = JSON.parse(last_response.body)
+      shell = File.read("public/#{response['shell']['url'].delete_prefix('/')}")
+
+      expect(shell).to match(/"10\.10\.10\.10"[^,]/)
+    end
+
     it 'generates PHP obfuscated webshell' do
       body = {
         shell: 'php',
