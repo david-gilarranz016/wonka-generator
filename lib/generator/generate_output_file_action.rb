@@ -16,7 +16,7 @@ class GenerateOutputFileAction
     File.open(path, 'a') { |f| f.write(product.code) }
 
     # Update the product with the output path for the filename and the checksum
-    product.file = path
+    product.file = path.delete_prefix('public/')
     product.checksum = OpenSSL::Digest::SHA256.file(path).hexdigest
   end
 end

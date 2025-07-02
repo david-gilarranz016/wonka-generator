@@ -1,5 +1,8 @@
 class App < Sinatra::Base
 
+  set :static, true
+  set :public_folder, 'public'
+
   configure do
     enable :cross_origin
   end

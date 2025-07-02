@@ -133,7 +133,7 @@ def run_adds_filename_to_product_scenario(extension)
     action.transform(product)
 
     # Expect the product to contain the created filename
-    expect(product.file).to eq("public/output/#{filename}.#{extension}")
+    expect(product.file).to eq("output/#{filename}.#{extension}")
   end
 end
 
