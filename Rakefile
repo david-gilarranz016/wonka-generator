@@ -3,7 +3,7 @@
 require 'steep/rake_task'
 require 'rspec/core/rake_task'
 require 'rake/clean'
-CLEAN = FileList['output/*']
+CLEAN = FileList['public/output/*']
 
 namespace :test do
   # Task to run unit tests

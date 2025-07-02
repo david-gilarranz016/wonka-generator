@@ -207,7 +207,7 @@ describe App do
 
       # Get the checksum of the generated file and compare it with the requested one
       response = JSON.parse(last_response.body)
-      expected_checksum = OpenSSL::Digest::SHA256.file(response['shell']['url'].delete_prefix('/'))
+      expected_checksum = OpenSSL::Digest::SHA256.file("public/#{response['shell']['url'].delete_prefix('/')}")
       expect(response['shell']['checksum']['value']).to eq(expected_checksum.to_s)
 
       # Expect the returned algorithm to be SHA256
@@ -237,7 +237,7 @@ describe App do
 
       # Expect the generated file to include the requested features
       response = JSON.parse(last_response.body)
-      shell = File.read(response['shell']['url'].delete_prefix('/'))
+      shell = File.read("public/#{response['shell']['url'].delete_prefix('/')}")
 
       expect(shell).to include('class UploadFileAction')
       expect(shell).to include('class IdentifyExecutionAlternatives')
@@ -267,7 +267,7 @@ describe App do
 
       # Expect the generated file to include the key
       response = JSON.parse(last_response.body)
-      shell = File.read(response['shell']['url'].delete_prefix('/'))
+      shell = File.read("public/#{response['shell']['url'].delete_prefix('/')}")
 
       expect(shell).to include(key)
       expect(SecureRandom).to have_received(:hex).with(64).at_least(:once)
@@ -297,7 +297,7 @@ describe App do
 
       # Expect the generated file to include the key
       response = JSON.parse(last_response.body)
-      shell = File.read(response['shell']['url'].delete_prefix('/'))
+      shell = File.read("public/#{response['shell']['url'].delete_prefix('/')}")
 
       expect(shell).to include(nonce)
       expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
@@ -326,7 +326,7 @@ describe App do
 
       # Read the generated shell
       response = JSON.parse(last_response.body)
-      shell = File.read(response['shell']['url'].delete_prefix('/'))
+      shell = File.read("public/#{response['shell']['url'].delete_prefix('/')}")
 
       # Expect the shell to be obfuscated -> check there are no newlines and strings
       # are obfuscated
@@ -354,7 +354,7 @@ describe App do
 
       # Get the checksum of the generated file and compare it with the requested one
       response = JSON.parse(last_response.body)
-      expected_checksum = OpenSSL::Digest::SHA256.file(response['client']['url'].delete_prefix('/'))
+      expected_checksum = OpenSSL::Digest::SHA256.file("public/#{response['client']['url'].delete_prefix('/')}")
       expect(response['client']['checksum']['value']).to eq(expected_checksum.to_s)
 
       # Expect the returned algorithm to be SHA256
@@ -385,7 +385,7 @@ describe App do
 
       # Expect the generated file to include the key
       response = JSON.parse(last_response.body)
-      client = File.read(response['client']['url'].delete_prefix('/'))
+      client = File.read("public/#{response['client']['url'].delete_prefix('/')}")
 
       expect(client).to include(key)
       expect(SecureRandom).to have_received(:hex).with(64).at_least(:once)
@@ -415,7 +415,7 @@ describe App do
 
       # Expect the generated file to include the key
       response = JSON.parse(last_response.body)
-      client = File.read(response['client']['url'].delete_prefix('/'))
+      client = File.read("public/#{response['client']['url'].delete_prefix('/')}")
 
       expect(client).to include(nonce)
       expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
