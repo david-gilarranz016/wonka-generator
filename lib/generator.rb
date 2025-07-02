@@ -5,6 +5,7 @@ require 'securerandom'
 require 'openssl'
 require 'sinatra/base'
 require 'json-schema'
+require 'singleton'
 
 require_relative 'generator/fragment'
 require_relative 'generator/configuration'

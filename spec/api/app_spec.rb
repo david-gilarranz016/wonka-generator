@@ -421,4 +421,36 @@ describe App do
       expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
     end
   end
+
+  describe 'adds CORS headers' do
+    it 'to any request' do
+      get('/web-shell')
+
+      expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+    end
+
+    it 'to OPTIONS requests to the /web-shell endpoint' do
+      options('/web-shell')
+
+      expect(last_response.headers['Allow']).to eq('GET')
+      expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+    end
+
+    it 'to OPTIONS requests to the /client endpoint' do
+      options('/client')
+
+
+      expect(last_response.headers['Allow']).to eq('GET')
+      expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+    end
+
+    it 'to OPTIONS requests to the /generator endpoint' do
+      options('/generator')
+
+
+      expect(last_response.headers['Allow']).to eq('POST')
+      expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+      expect(last_response.headers['Access-Control-Allow-Headers']).to eq('Content-Type, Accept')
+    end
+  end
 end

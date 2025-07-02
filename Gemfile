@@ -7,11 +7,13 @@ source 'https://rubygems.org'
 
 # Production gems
 gem 'dotenv'
+gem 'json-schema'
 gem 'openssl'
 gem 'puma'
 gem 'rake'
 gem 'sinatra'
-gem 'json-schema'
+gem 'sinatra-cross_origin'
+gem 'rack-protection'
 
 # Development gems
 group :development do

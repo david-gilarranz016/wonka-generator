@@ -1,7 +1,15 @@
 class App < Sinatra::Base
+
+  configure do
+    enable :cross_origin
+  end
+
   before do
     # Set the Content Type for all responses
     content_type :json
+
+    # Allow Cross Origin requests
+    response.headers['Access-Control-Allow-Origin'] = '*'
   end
 
   get '/web-shell' do
@@ -76,5 +84,19 @@ class App < Sinatra::Base
         }
       }
     }.to_json
+  end
+
+  # Options requests -> to correctly handle CORS preflight requests
+  options '/web-shell' do
+    response.headers['Allow'] = 'GET'
+  end
+
+  options '/client' do
+    response.headers['Allow'] = 'GET'
+  end
+
+  options '/generator' do
+    response.headers['Allow'] = 'POST'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Accept'
   end
 end
