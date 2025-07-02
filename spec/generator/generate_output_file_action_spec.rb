@@ -73,13 +73,14 @@ def run_creates_file_scenario(code, extension)
     product.code = code
 
     # Create and run the action
-    Dir.mkdir('output')
+    Dir.mkdir('public')
+    Dir.mkdir('public/output')
     file_info = FileInfo.new(extension)
     action = GenerateOutputFileAction.new(file_info)
     action.transform(product)
 
     # Expect the file to have been created
-    File.open("output/#{filename}.#{extension}", 'r') do |f|
+    File.open("public/output/#{filename}.#{extension}", 'r') do |f|
       expect(f.read).to eq(code)
     end
   end
@@ -97,7 +98,8 @@ def run_creates_file_with_preamble_scenario(code, preamble, extension)
     product.code = code
 
     # Create and run the action
-    Dir.mkdir('output')
+    Dir.mkdir('public')
+    Dir.mkdir('public/output')
     file_info = FileInfo.new(extension, preamble)
     action = GenerateOutputFileAction.new(file_info)
     action.transform(product)
@@ -107,7 +109,7 @@ def run_creates_file_with_preamble_scenario(code, preamble, extension)
     expected_content << code
 
     # Open the file and compare the actual with the expected content
-    File.open("output/#{filename}.#{extension}", 'r+b') do |f|
+    File.open("public/output/#{filename}.#{extension}", 'r+b') do |f|
       expect(f.read).to eq(expected_content)
     end
   end
@@ -124,13 +126,14 @@ def run_adds_filename_to_product_scenario(extension)
     product = Product.new
 
     # Create and run the action
-    Dir.mkdir('output')
+    Dir.mkdir('public')
+    Dir.mkdir('public/output')
     file_info = FileInfo.new(extension)
     action = GenerateOutputFileAction.new(file_info)
     action.transform(product)
 
     # Expect the product to contain the created filename
-    expect(product.file).to eq("output/#{filename}.#{extension}")
+    expect(product.file).to eq("public/output/#{filename}.#{extension}")
   end
 end
 
@@ -146,13 +149,14 @@ def run_adds_checksum_to_product_scenario(code)
     product.code = code
 
     # Create and run the action
-    Dir.mkdir('output')
+    Dir.mkdir('public')
+    Dir.mkdir('public/output')
     file_info = FileInfo.new('php')
     action = GenerateOutputFileAction.new(file_info)
     action.transform(product)
 
     # Expect the product to contain the created filename
-    checksum = OpenSSL::Digest::SHA256.file("output/#{filename}.php").hexdigest
+    checksum = OpenSSL::Digest::SHA256.file("public/output/#{filename}.php").hexdigest
     expect(product.checksum).to eq(checksum)
   end
 end

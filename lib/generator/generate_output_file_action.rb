@@ -5,7 +5,7 @@ class GenerateOutputFileAction
 
   def transform(product)
     # Create the output file
-    path = "output/#{SecureRandom.hex(32)}.#{@file_info.extension}"
+    path = "public/output/#{SecureRandom.hex(32)}.#{@file_info.extension}"
 
     # Open the file in binary mode and add the preamble
     unless @file_info.preamble.empty?
