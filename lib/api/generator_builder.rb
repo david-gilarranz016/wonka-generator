@@ -59,7 +59,10 @@ class GeneratorBuilder
       if key == 'nonce-validation'
         arguments['NONCE'] = nonce
       elsif !feature['arguments'].nil?
-        feature['arguments'].each { |argument| arguments[argument['name']] = argument['value'] }
+        feature['arguments'].each do |argument|
+          # Surround each value with quotes
+          arguments[argument['name']] = argument['value'].split(',').map { |value| "\"#{value.strip}\"" }.join(',')
+        end
       else
         arguments = nil
       end

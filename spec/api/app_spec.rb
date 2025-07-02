@@ -303,6 +303,35 @@ describe App do
       expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
     end
 
+    it 'generates PHP webshell with correctly formatted IPs if requested validation' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'ip-validation',
+            arguments: [
+              name: 'IP_WHITELIST',
+              value: '10.10.10.10, ::1'
+            ]
+          }
+        ],
+        output: {
+          format: 'gif',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Expect the generated file to include the IPs surrounded by quotes
+      response = JSON.parse(last_response.body)
+      shell = File.read("public/#{response['shell']['url'].delete_prefix('/')}")
+
+      expect(shell).to include('"10.10.10.10","::1"')
+    end
+
     it 'generates PHP obfuscated webshell' do
       body = {
         shell: 'php',
