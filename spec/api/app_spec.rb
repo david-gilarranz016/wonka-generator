@@ -259,7 +259,7 @@ describe App do
       }.to_json
 
       # Mock secure random to return mock key
-      key = SecureRandom.hex(64)
+      key = SecureRandom.hex(32)
       allow(SecureRandom).to receive(:hex).and_return(key)
 
       # Send the request
@@ -270,7 +270,7 @@ describe App do
       shell = File.read("public/#{response['shell']['url'].delete_prefix('/')}")
 
       expect(shell).to include(key)
-      expect(SecureRandom).to have_received(:hex).with(64).at_least(:once)
+      expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
     end
 
     it 'generates PHP webshell with randomly generated NONCE if requested' do
@@ -392,6 +392,35 @@ describe App do
       expect(shell).to match(/".*\\x\d\d.*"/)
     end
 
+    it 'ignores feature "execute-command-no-alternatives" if "execute-command-alternatives" is present' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'execute-command-no-alternatives'
+          },
+          {
+            key: 'execute-command-alternatives'
+          }
+        ],
+        output: {
+          format: 'php',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+
+      # Read the generated shell
+      response = JSON.parse(last_response.body)
+      shell = File.read("public/#{response['shell']['url'].delete_prefix('/')}")
+
+      # Expect the shell not no include a forcefull execution method set up
+      expect(shell).not_to include('Required classes and definitions for Command-Execution with no alternatives identification')
+    end
+
     it 'generates Python client matching its checksum' do
       body = {
         shell: 'php',
@@ -435,7 +464,7 @@ describe App do
       }.to_json
 
       # Mock secure random to return mock key
-      key = SecureRandom.hex(64)
+      key = SecureRandom.hex(32)
       allow(SecureRandom).to receive(:hex).and_return(key)
 
       # Send the request
@@ -446,7 +475,7 @@ describe App do
       client = File.read("public/#{response['client']['url'].delete_prefix('/')}")
 
       expect(client).to include(key)
-      expect(SecureRandom).to have_received(:hex).with(64).at_least(:once)
+      expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
     end
 
     it 'generates Python client with randomly generated NONCE' do
@@ -465,7 +494,7 @@ describe App do
       }.to_json
 
       # Mock secure random to return mock nonce
-      nonce = SecureRandom.hex(32)
+      nonce = SecureRandom.hex(16)
       allow(SecureRandom).to receive(:hex).and_return(nonce)
 
       # Send the request
@@ -476,7 +505,7 @@ describe App do
       client = File.read("public/#{response['client']['url'].delete_prefix('/')}")
 
       expect(client).to include(nonce)
-      expect(SecureRandom).to have_received(:hex).with(32).at_least(:once)
+      expect(SecureRandom).to have_received(:hex).with(16).at_least(:once)
     end
   end
 

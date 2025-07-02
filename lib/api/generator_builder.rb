@@ -50,6 +50,13 @@ class GeneratorBuilder
 
   def build_features_stage(body, code_factory, nonce)
     actions = []
+
+    # Remove incompatible features
+    keys = body['features'].map { |feature| feature['key'] }
+    if keys.include?('execute-command-no-alternatives') and keys.include?('execute-command-alternatives')
+      body['features'].reject! { |feature| feature['key'] == 'execute-command-no-alternatives' }
+    end
+
     body['features'].each do |feature|
       # Get the requested feature's key
       key = feature['key']

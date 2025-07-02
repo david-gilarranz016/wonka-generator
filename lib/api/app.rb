@@ -65,8 +65,8 @@ class App < Sinatra::Base
     halt 400 unless SecurityService.instance.valid?(body)
 
     # Generate the shell and client
-    key = SecureRandom.hex(64)
-    nonce = SecureRandom.hex(32)
+    key = SecureRandom.hex(32)
+    nonce = SecureRandom.hex(16)
     shell_info = GeneratorBuilder.instance.build_shell_generator(body, key, nonce).generate
     client_info = GeneratorBuilder.instance.build_client_generator(body, key, nonce).generate
 
