@@ -101,7 +101,11 @@ describe App do
       body = {
         shell: 'non-valid',
         client: 'python',
-        features: []
+        features: [],
+        output: {
+          format: 'php',
+          'obfuscate-code': false
+        }
       }.to_json
 
       # Perform the action
@@ -115,7 +119,11 @@ describe App do
       body = {
         shell: 'php',
         client: 'non-valid',
-        features: []
+        features: [],
+        output: {
+          format: 'php',
+          'obfuscate-code': false
+        }
       }.to_json
 
       # Perform the action
@@ -133,7 +141,11 @@ describe App do
           {
             key: 'non-existent'
           }
-        ]
+        ],
+        output: {
+          format: 'php',
+          'obfuscate-code': false
+        }
       }.to_json
 
       # Perform the action
@@ -149,17 +161,21 @@ describe App do
         client: 'python',
         features: [
           {
-            key: 'ip-validator',
+            key: 'ip-validation',
             arguments: [
-              name: 'ip_whitelist',
+              name: 'IP_WHITELIST',
               value: 'Not an IP, 10.10.10.10'
             ]
           }
-        ]
+        ],
+        output: {
+          format: 'php',
+          'obfuscate-code': false
+        }
       }.to_json
 
       # Perform the action
-      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' } )
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
 
       # Expect the status code to be 400
       expect(last_response.status).to be(400)

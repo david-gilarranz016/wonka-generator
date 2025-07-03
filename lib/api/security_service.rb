@@ -31,7 +31,7 @@ class SecurityService
       body['features'].each do |feature|
         # Check if the feature exists and validate it against it's JSON schema
         schema = schemas.select { |schema| schema['key'] == feature['key'] }.first
-        valid &&= !schema.nil? && JSON::Validator.validate(schema, feature)
+        valid &&= (!schema.nil? && JSON::Validator.validate(schema['schema'], feature))
       end
     end
 
