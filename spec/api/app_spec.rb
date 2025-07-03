@@ -68,7 +68,7 @@ describe App do
   describe 'when receiving a GET request to /client' do
     it 'returns available client technologies' do
       # Read available technologies and build the expected response
-      technologies = YAML.load_file('config/api/api.yaml')['clients'].map { |shell| shell['technology'] }
+      technologies = YAML.load_file('config/api/api.yaml')['clients'].map { |client| client['technology'] }
       expected_response = technologies.map { |tech| { 'technology' => tech } }
 
       # Perform the query

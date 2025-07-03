@@ -67,3 +67,4 @@ shells:
         description: Obfuscate the generated web shell.
 clients:
   - technology: python
+    dependencies: /dependencies/python-requirements.txt
