@@ -11,9 +11,10 @@ RUN bundle install
 # Copy application source code
 COPY config.ru .
 ADD lib ./lib
-ADD public ./public
 ADD config ./config
 ADD shells ./shells
 ADD clients ./clients
+ADD public ./public
+RUN mkdir public/output
 
 CMD ["bundle", "exec", "puma", "-e", "production", "-p", "8000"]
