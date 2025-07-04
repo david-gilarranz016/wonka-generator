@@ -59,3 +59,7 @@ build-iPhoneSimulator/
 .solargraph.yml
 .rspec
 Gemfile.lock
+
+# Ignore generator output
+public/output/
+

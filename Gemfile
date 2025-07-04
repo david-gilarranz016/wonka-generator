@@ -10,10 +10,12 @@ gem 'dotenv'
 gem 'json-schema'
 gem 'openssl'
 gem 'puma'
+gem 'rack-attack'
+gem 'rack-protection'
 gem 'rake'
+gem 'redis'
 gem 'sinatra'
 gem 'sinatra-cross_origin'
-gem 'rack-protection'
 
 # Development gems
 group :development do
