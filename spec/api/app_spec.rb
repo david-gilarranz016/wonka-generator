@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rack/test'
 
 describe App do
@@ -522,6 +520,38 @@ describe App do
 
       expect(client).to include(nonce)
       expect(SecureRandom).to have_received(:hex).with(16).at_least(:once)
+    end
+
+    it 'logs: shell output and checksum, features, client output and checksum and request IP' do
+      body = {
+        shell: 'php',
+        client: 'python',
+        features: [
+          {
+            key: 'file-upload'
+          },
+          {
+            key: 'nonce-validation'
+          }
+        ],
+        output: {
+          format: 'gif',
+          'obfuscate-code': false
+        }
+      }.to_json
+
+      logged_content = ''
+      allow_any_instance_of(Logger).to receive(:info) { |_, arg| logged_content = arg }
+
+      # Send the request
+      post('/generator', body, { 'CONTENT_TYPE' => 'application/json' })
+      response = JSON.parse(last_response.body)
+
+      expected_log = '127.0.0.1 - '
+      expected_log << 'features[file-upload,nonce-validation],'
+      expected_log << "shell[url=#{response['shell']['url']},checksum=#{response['shell']['checksum']['value']}],"
+      expected_log << "client[url=#{response['client']['url']},checksum=#{response['client']['checksum']['value']}]"
+      expect(logged_content).to eq(expected_log)
     end
   end
 

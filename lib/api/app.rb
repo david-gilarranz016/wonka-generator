@@ -2,8 +2,10 @@ class App < Sinatra::Base
 
   set :static, true
   set :public_folder, 'public'
+  set :logging, true
 
   configure do
+    # Allow Cross-Origin requests
     enable :cross_origin
   end
 
@@ -65,6 +67,13 @@ class App < Sinatra::Base
     nonce = SecureRandom.hex(16)
     shell_info = GeneratorBuilder.instance.build_shell_generator(body, key, nonce).generate
     client_info = GeneratorBuilder.instance.build_client_generator(body, key, nonce).generate
+
+    # Log the request
+    log_entry = "#{request.ip} - "
+    log_entry << "features[#{body['features'].map { |feature| feature['key'] }.join(',')}],"
+    log_entry << "shell[url=/#{shell_info.file},checksum=#{shell_info.checksum}],"
+    log_entry << "client[url=/#{client_info.file},checksum=#{client_info.checksum}]"
+    logger.info log_entry
 
     # Create the response
     {
