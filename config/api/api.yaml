@@ -61,7 +61,7 @@ shells:
         description: |-
           Add the GIF magic bytes to the generated shell. Note that the file extension
           will to be changed before/after uploading to make it executable.
-      - key: ofbuscate
+      - key: obfuscate-code
         name: Obfuscate code
         type: output,option
         description: Obfuscate the generated web shell.
