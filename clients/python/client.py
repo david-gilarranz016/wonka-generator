@@ -1,4 +1,4 @@
-from client.action import Action
+from action import Action
 
 import textwrap
 
