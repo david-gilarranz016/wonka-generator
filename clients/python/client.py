@@ -1,4 +1,4 @@
-
+from client.action import Action
 
 import textwrap
 
@@ -47,7 +47,7 @@ class Client:
             # Run the action
             try:
                 output = self.__actions[action].run(args)
-                print(output)
+                print(output.replace('\\n', '\n'))
             except:
                 print('Error: the requested action could not be performed')
 
