@@ -213,7 +213,7 @@ The `shell` and `client` options are relatively straightforward, since they are 
 the desired target technology. On the other hand, the `feature` and `output` are somewhat more complex.
 
 For the `feature` section, a list of objects is expected by the API. Each entry in the list will correspond
-to a feature of either the `feature` or `security` types discussed in the [technology endpoint](#webshelltechnology).
+to a feature of either the `feature` or `security` types discussed in the [technology endpoint](#web-shelltechnology).
 
 Since the API was designed to interact with the front-end, the previous response cannot be directly used
 when manually crafting a request. Each individual feature will be requested as an object with the following keys:
