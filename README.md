@@ -116,7 +116,6 @@ A sample response looks as follows:
     "type": "feature",
     "description": "Add command execution support to the generated web shell."
   },
-  ...
   {
     "key": "ip-validation",
     "name": "IP Validation",
@@ -129,14 +128,12 @@ A sample response looks as follows:
       "key": "IP_WHITELIST"
     }
   },
-  ...
   {
     "key": "php",
     "name": "PHP",
     "type": "output,format",
     "description": "Create a PHP file containing the generated web shell."
   },
-  ...
   {
     "key": "obfuscate-code",
     "name": "Obfuscate code",
