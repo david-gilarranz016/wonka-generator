@@ -64,7 +64,8 @@ docker run -d -p 8080:8000 -e REDIS_HOST=localhost -e REDIS_PORT=6379 wonka/api
 
 ### API Endpoints
 
-Even though interacting with the generator using the suggested [frontend application]() is preferred,
+Even though interacting with the generator using the suggested
+[frontend application](https://github.com/david-gilarranz016/wonka-front-end) is preferred,
 it is still possible to manually interact with the API and successfully generate a customized Web
 Shell and its client.
 
@@ -154,7 +155,7 @@ Note that features can be broken into the following categories:
   - **option**: modifiers that can be applied to the generation process, such as code obfuscation.
 
 More information on how to use the returned features for the generation process can be found in the
-[/generator endpoint](#/generator) description.
+[generator endpoint](#generator) description.
 
 #### /client
 
@@ -212,7 +213,7 @@ The `shell` and `client` options are relatively straightforward, since they are 
 the desired target technology. On the other hand, the `feature` and `output` are somewhat more complex.
 
 For the `feature` section, a list of objects is expected by the API. Each entry in the list will correspond
-to a feature of either the `feature` or `security` types discussed in the [technology endpoint](#/webshell/:technology).
+to a feature of either the `feature` or `security` types discussed in the [technology endpoint](#webshelltechnology).
 
 Since the API was designed to interact with the front-end, the previous response cannot be directly used
 when manually crafting a request. Each individual feature will be requested as an object with the following keys:
